@@ -10,7 +10,7 @@
     "build": "cd react-redux-realworld-example-app && npm run build",
     "deploy": "git push heroku master",
     "dev": "NODE_OPTIONS=--openssl-legacy-provider concurrently --kill-others 'npm run front --' 'npm run back --'",
-    "front": "sh -c 'cd react-redux-realworld-example-app && NODE_OPTIONS=--openssl-legacy-provider npm start'",
+    "front": "npm start --prefix react-redux-realworld-example-app",
     "postinstall": "echo 'Setup complete - sqlite3 will use prebuilt binaries'",
     "setup": "npm install --ignore-scripts && npm install sqlite3 && git submodule update --init --recursive && cd react-redux-realworld-example-app && npm install --ignore-scripts && cd ..",
     "start": "node --unhandled-rejections=strict ./app.js",
