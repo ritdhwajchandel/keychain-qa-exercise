@@ -41,7 +41,6 @@
     "request": "2.69.0",
     "sequelize": "6.5.1",
     "slug": "0.9.1",
-    "sqlite3": "5.1.7",
     "termit": "0.4.4"
   },
   "prettier": {

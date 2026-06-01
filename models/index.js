@@ -13,39 +13,20 @@ module.exports = (toplevelDir, toplevelBasename) => {
   };
   let sequelize;
 
-  try {
-    if (config.isProduction) {
-      sequelizeParams.dialect = 'postgres';
-      sequelizeParams.dialectOptions = {
-        ssl: {
-          require: true,
-          rejectUnauthorized: false
-        }
-      };
-      sequelize = new Sequelize(config.databaseUrl, sequelizeParams);
-    } else {
-      sequelizeParams.dialect = 'sqlite';
-      let storage;
-      if (process.env.NODE_ENV === 'test' || toplevelDir === undefined) {
-        storage = ':memory:';
-      } else {
-        if (toplevelBasename === undefined) {
-          toplevelBasename = 'db.sqlite3';
-        }
-        storage = path.join(toplevelDir, toplevelBasename);
+  if (config.isProduction) {
+    sequelizeParams.dialect = 'postgres';
+    sequelizeParams.dialectOptions = {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
       }
-      sequelizeParams.storage = storage;
-      sequelize = new Sequelize(sequelizeParams);
-    }
-  } catch (err) {
-    if (err.message.includes('sqlite3') || err.message.includes('bindings')) {
-      console.warn('⚠️  sqlite3 native module not available. Using in-memory database.');
-      sequelizeParams.dialect = 'sqlite';
-      sequelizeParams.storage = ':memory:';
-      sequelize = new Sequelize(sequelizeParams);
-    } else {
-      throw err;
-    }
+    };
+    sequelize = new Sequelize(config.databaseUrl, sequelizeParams);
+  } else {
+    sequelizeParams.dialect = 'sqlite';
+    sequelizeParams.storage = ':memory:';
+    console.log('📦 Using in-memory SQLite database for development');
+    sequelize = new Sequelize(sequelizeParams);
   }
 
   const Article = require('./article')(sequelize)
