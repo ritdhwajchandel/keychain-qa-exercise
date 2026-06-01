@@ -12,32 +12,42 @@ module.exports = (toplevelDir, toplevelBasename) => {
     },
   };
   let sequelize;
-  if (config.isProduction) {
-    sequelizeParams.dialect = 'postgres';
-    sequelizeParams.dialectOptions = {
-      // https://stackoverflow.com/questions/27687546/cant-connect-to-heroku-postgresql-database-from-local-node-app-with-sequelize
-      // https://devcenter.heroku.com/articles/heroku-postgresql#connecting-in-node-js
-      // https://stackoverflow.com/questions/58965011/sequelizeconnectionerror-self-signed-certificate
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      }
-    };
-    sequelize = new Sequelize(config.databaseUrl, sequelizeParams);
-  } else {
-    sequelizeParams.dialect = 'sqlite';
-    let storage;
-    if (process.env.NODE_ENV === 'test' || toplevelDir === undefined) {
-      storage = ':memory:';
+
+  try {
+    if (config.isProduction) {
+      sequelizeParams.dialect = 'postgres';
+      sequelizeParams.dialectOptions = {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false
+        }
+      };
+      sequelize = new Sequelize(config.databaseUrl, sequelizeParams);
     } else {
-      if (toplevelBasename === undefined) {
-        toplevelBasename = 'db.sqlite3';
+      sequelizeParams.dialect = 'sqlite';
+      let storage;
+      if (process.env.NODE_ENV === 'test' || toplevelDir === undefined) {
+        storage = ':memory:';
+      } else {
+        if (toplevelBasename === undefined) {
+          toplevelBasename = 'db.sqlite3';
+        }
+        storage = path.join(toplevelDir, toplevelBasename);
       }
-      storage = path.join(toplevelDir, toplevelBasename);
+      sequelizeParams.storage = storage;
+      sequelize = new Sequelize(sequelizeParams);
     }
-    sequelizeParams.storage = storage;
-    sequelize = new Sequelize(sequelizeParams);
+  } catch (err) {
+    if (err.message.includes('sqlite3') || err.message.includes('bindings')) {
+      console.warn('⚠️  sqlite3 native module not available. Using in-memory database.');
+      sequelizeParams.dialect = 'sqlite';
+      sequelizeParams.storage = ':memory:';
+      sequelize = new Sequelize(sequelizeParams);
+    } else {
+      throw err;
+    }
   }
+
   const Article = require('./article')(sequelize)
   const Comment = require('./comment')(sequelize)
   const User = require('./user')(sequelize)
