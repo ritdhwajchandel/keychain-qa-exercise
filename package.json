@@ -11,6 +11,8 @@
     "deploy": "git push heroku master",
     "dev": "NODE_OPTIONS=--openssl-legacy-provider concurrently --kill-others 'npm run front --' 'npm run back --'",
     "front": "cd react-redux-realworld-example-app && NODE_OPTIONS=--openssl-legacy-provider npm start",
+    "postinstall": "NODE_OPTIONS=--openssl-legacy-provider npm rebuild sqlite3 2>/dev/null || true",
+    "setup": "npm install --ignore-scripts && git submodule update --init --recursive && cd react-redux-realworld-example-app && npm install --ignore-scripts && cd .. && NODE_OPTIONS=--openssl-legacy-provider npm rebuild sqlite3",
     "start": "node --unhandled-rejections=strict ./app.js",
     "start-prod": "env $(cat .env | xargs) NODE_ENV=production DATABASE_URL='postgres://node_express_sequelize_realworld_user:a@localhost:5432/node_express_sequelize_realworld' npm start",
     "test": "mocha test --ignore-leaks test.js",
