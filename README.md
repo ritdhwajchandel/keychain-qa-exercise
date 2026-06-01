@@ -3,8 +3,11 @@
 ## Installation
 
 ```bash
-npm install
+npm install --ignore-scripts
 git submodule update --init --recursive
+cd react-redux-realworld-example-app
+npm install --ignore-scripts
+cd ..
 ```
 
 ## Running
